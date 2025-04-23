@@ -77,7 +77,7 @@ const handler: Handler = async (event, context) => {
 
     const result = await getAssetsSnapshot(combinedTickers);
 
-    const allowedOrigins = ['http://localhost:4200', 'https://your-angular-app.netlify.app'];
+    const allowedOrigins = ['http://localhost:4200', 'https://stocktracker-angular.netlify.app'];
     const origin = event.headers.origin ?? '' ;
     const isAllowedOrigin = allowedOrigins.includes(origin || '');
 
