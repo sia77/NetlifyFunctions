@@ -2,29 +2,38 @@ import { Handler } from '@netlify/functions';
 import axios from 'axios';
 
 const getListOfAssetSymbols = async (): Promise<string[]> => {
+
   try {
     const res = await axios.get('https://finnhub.io/api/v1/stock/symbol', {
       headers: {
-        'X-Finnhub-Token': process.env.FINNHUB_API_KEY,
+        'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
       },
       params: {
         exchange: 'US',
       },
     });
 
+    
+
     // Ensure response contains valid data
     return res.data
       .filter((item: any) => item.symbol)
       .map((item: any) => item.symbol);
-  } catch (err) {
-    console.error("Error fetching asset symbols:", err);
-    throw new Error("Failed to fetch asset symbols");
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+          console.error("Axios error fetching asset symbols:", err.response || err.message);
+      } else {
+          console.error("Error fetching asset symbols:", err);
+      }
+      throw new Error();
   }
 };
 
 const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
   const apiKey = process.env.ALPACA_API_KEY?.trim();
   const apiSecret = process.env.ALPACA_API_SECRET?.trim();
+
+  console.log("***************apiKey", apiKey);
 
   if (!apiKey || !apiSecret) {
     throw new Error("API keys are missing from environment variables.");
@@ -64,9 +73,13 @@ const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
       mostActive: mostActive.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)),
     };
   } catch (err) {
-    console.error("Error fetching asset snapshots:", err);
+    if (axios.isAxiosError(err)) {
+        console.error("Axios error fetching asset snapshots:", err.response || err.message);
+    } else {
+        console.error("Error fetching asset snapshots:", err);
+    }
     throw new Error("Failed to fetch asset snapshots");
-  }
+}
 };
 
 const handler: Handler = async (event, context) => {
@@ -92,9 +105,15 @@ const handler: Handler = async (event, context) => {
       body: JSON.stringify(result),
     };
   } catch (err: any) {
-    console.error("Handler error:", err);
+    console.error("**************Handler error:", err);
     return {
       statusCode: 500,
+      headers:{        
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', 
+        'Access-Control-Allow-Methods': 'GET', 
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
       body: JSON.stringify({ error: err.message }),
     };
   }
