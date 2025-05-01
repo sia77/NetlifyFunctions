@@ -1,18 +1,22 @@
+import axios from "axios"
 
-import axios from 'axios';
-
-const getTopNews = async ():Promise<any[]> => {
+const searchAssetByQuery = async (query:any):Promise<any> => {
 
     try{
-        const res = await axios.get(`${process.env.FINNHUB_BASE_URL}news`, {
-            headers: {
-                'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
-            },
-            params: {
-                category : 'general',
-            },
-        });
-        return res.data;
+        const url = process.env.FINNHUB_BASE_URL;
+        const result = await axios.get<any>(`${url}search`, 
+            {
+                headers: {
+                    'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
+                },
+                params: {
+                    exchange : 'US',
+                    q : query
+                }
+            }
+        );
+
+        return result.data;
 
     }catch(err:any){
         if (axios.isAxiosError(err)) {
@@ -21,19 +25,26 @@ const getTopNews = async ():Promise<any[]> => {
             console.error("Error fetching asset symbols:", err);
         }
         throw new Error();
+    }
+}
 
+
+const handler = async (event:any) => {
+    const query = event.queryStringParameters?.search;
+
+    if (!query) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Missing query parameter "q"' }),
+        };
     }
 
-};
-
-const handler = async () =>{
-
     try{
-        const result = await getTopNews();
+        const result = await searchAssetByQuery(query);
 
         return {
-            statusCode: 200,
-            headers:{
+            statusCode:200,
+            headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET', 
@@ -41,11 +52,11 @@ const handler = async () =>{
             },
             body: JSON.stringify(result)
         }
-    }
-    catch(err:any){
+
+    }catch(err:any){
 
         return {
-            statusCode: 500,
+            statusCode:500,
             headers:{
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
@@ -54,10 +65,7 @@ const handler = async () =>{
             },
             body: JSON.stringify(err?.message)
         };
-
     }
-
-
 }
 
 export {handler}
