@@ -21,9 +21,7 @@ const getTopNews = async ():Promise<any[]> => {
             console.error("Error fetching asset symbols:", err);
         }
         throw new Error();
-
     }
-
 };
 
 const handler = async () =>{
