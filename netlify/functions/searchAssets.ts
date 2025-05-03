@@ -1,4 +1,5 @@
-import axios from "axios"
+import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
 
 const searchAssetByQuery = async (query:any):Promise<any> => {
 
@@ -82,6 +83,7 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
 
     const url = process.env.ALPACA_BASE_URL;
 
+
     try{        
         const snapResult  = await axios.get<any>(`${url}stocks/snapshots`, {
             headers:{
@@ -108,6 +110,7 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
             const intradayIntensity = ((2 * daily.c - dailyRange) / (dailyRange)) * daily.v;
 
             aggregatedResult.push({
+                id: uuidv4(),
                 symbol: ticker, 
                 name:tickerData['name'], 
                 open:daily.o, 
