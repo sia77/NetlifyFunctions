@@ -5,12 +5,11 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
     const summarizedResult:any = [];
     const url = process.env.FINNHUB_BASE_URL;
 
-    try{
+    try{        
         const result = await axios.get<any>(`${url}search`, 
             {
                 headers: {
-                    //'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
-                    'X-Finnhub-Token': 'd0292g1r01qt2u32of1gd0292g1r01qt2u32of20',
+                    'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
                 },
                 params: {
                     exchange : 'US',
@@ -45,7 +44,7 @@ const getMarketCapitalization = async (details:any[]):Promise<any[]> => {
             const result = await axios.get<any>(`${url}stock/profile2`, 
                 {
                     headers: {
-                        'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),                        
+                        'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
                     },
                     params: {
                         symbol : item.symbol,
@@ -81,7 +80,7 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
         tickers.push(item.symbol); 
     });
 
-    const url = process.env.FINNHUB_BASE_URL;
+    const url = process.env.ALPACA_BASE_URL;
 
     try{        
         const snapResult  = await axios.get<any>(`${url}stocks/snapshots`, {
