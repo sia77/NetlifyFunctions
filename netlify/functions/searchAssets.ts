@@ -24,7 +24,7 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
         });
 
         filteredResult.map((item:any) => {
-            summarizedResult.push({symbol:item?.symbol, name:item?.description});
+            summarizedResult.push({symbol:item?.symbol, name:item?.description, type:item?.type});
         });
 
         return {count:result?.data?.count, result:summarizedResult};
