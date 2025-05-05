@@ -19,9 +19,13 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
             }
         );
 
-        result.data.result.map((item:any) => {
+        const filteredResult = result.data.result.filter((item:any) => {
+            return item.type && item.type.trim() !== '';
+        });
+
+        filteredResult.map((item:any) => {
             summarizedResult.push({symbol:item?.symbol, name:item?.description});
-        })
+        });
 
         return {count:result?.data?.count, result:summarizedResult};
 
@@ -37,7 +41,7 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
 
 const getMarketCapitalization = async (details:any[]):Promise<any[]> => {
 
-    const url =  process.env.FINNHUB_BASE_URL;
+    const url = process.env.FINNHUB_BASE_URL;
     const results:any = [];
 
     try{
@@ -94,8 +98,6 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
                 symbols: tickers.join(','),
             }
         });
-
-
 
         Object.entries(snapResult?.data).forEach(([ticker, details]:any) => {
 
