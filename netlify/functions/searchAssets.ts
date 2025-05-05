@@ -20,16 +20,16 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
         );
 
         result.data.result.map((item:any) => {
-            summarizedResult.push({symbol:item.symbol, name:item.description});
+            summarizedResult.push({symbol:item?.symbol, name:item?.description});
         })
 
-        return {count:result.data.count, result:summarizedResult};
+        return {count:result?.data?.count, result:summarizedResult};
 
     }catch(err:any){
         if (axios.isAxiosError(err)) {
-            console.error("Axios error fetching asset symbols:", err.response || err.message);
+            console.error("Axios error fetching result by symbol:", err.response || err.message);
         } else {
-            console.error("Error fetching asset symbols:", err);
+            console.error("searchAssetByQuery - Error fetching result by symbol:", err);
         }
         throw new Error();
     }
@@ -37,7 +37,7 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
 
 const getMarketCapitalization = async (details:any[]):Promise<any[]> => {
 
-    const url = process.env.FINNHUB_BASE_URL;
+    const url =  process.env.FINNHUB_BASE_URL;
     const results:any = [];
 
     try{
@@ -48,21 +48,20 @@ const getMarketCapitalization = async (details:any[]):Promise<any[]> => {
                         'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
                     },
                     params: {
-                        symbol : item.symbol,
+                        symbol : item?.symbol,
                     }
                 }
             );
-
-            results.push({...item, marketCap:result.data.marketCapitalization});
+            results.push({...item, marketCap:result?.data?.marketCapitalization});
         }
 
         return results;
 
     }catch(err:any){
         if (axios.isAxiosError(err)) {
-            console.error("Axios error fetching asset symbols:", err.response || err.message);
+            console.error("Axios Error fetching mktCap:", err.response || err.message);
         } else {
-            console.error("Error fetching asset symbols:", err);
+            console.error("getMarketCapitalization - Error fetching mktCap:", err);
         }
         throw new Error();
     }
@@ -96,29 +95,31 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
             }
         });
 
-        Object.entries(snapResult.data).forEach(([ticker, details]:any) => {
 
-            const daily = details.dailyBar;
-            const prev = details.prevDailyBar;
-            const priceChange = daily.c - prev.c;
-            const percentChange = ((priceChange / prev.c) * 100).toFixed(2);
 
-            const dailyRange = daily.h - daily.l;
-            const gap = daily.o - prev.c;
-            const intradayStrength = dailyRange !== 0 ? (daily.c - daily.o) / dailyRange : 0;
-            const tickerData = result.find((item:any) => item.symbol === ticker);
-            const intradayIntensity = ((2 * daily.c - dailyRange) / (dailyRange)) * daily.v;
+        Object.entries(snapResult?.data).forEach(([ticker, details]:any) => {
+
+            const daily = details?.dailyBar;
+            const prev = details?.prevDailyBar;
+            const priceChange = daily?.c - prev?.c;
+            const percentChange = ((priceChange / prev?.c) * 100).toFixed(2);
+
+            const dailyRange = daily?.h - daily?.l;
+            const gap = daily?.o - prev?.c;
+            const intradayStrength = dailyRange !== 0 ? (daily?.c - daily?.o) / dailyRange : 0;
+            const tickerData = result.find((item:any) => item?.symbol === ticker);
+            const intradayIntensity = ((2 * daily?.c - dailyRange) / (dailyRange)) * daily?.v;
 
             aggregatedResult.push({
                 id: uuidv4(),
                 symbol: ticker, 
                 name:tickerData['name'], 
-                open:daily.o, 
-                close:daily.c, 
-                high:daily.h, 
-                low:daily.l, 
+                open:daily?.o, 
+                close:daily?.c, 
+                high:daily?.h, 
+                low:daily?.l, 
                 change: percentChange, 
-                volume:daily.v,
+                volume:daily?.v,
                 intradayStrength:intradayStrength, 
                 gap:gap,
                 dailyRange:dailyRange,
@@ -131,9 +132,9 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
 
     }catch(err:any){
         if (axios.isAxiosError(err)) {
-            console.error("Axios error fetching asset symbols:", err.response || err.message);
+            console.error("Axios error fetching details for a symbol:", err.response || err.message);
         } else {
-            console.error("Error fetching asset symbols:", err);
+            console.error("calculateIndicators - Error fetching details for a symbol:", err);
         }
         throw new Error();
     }
