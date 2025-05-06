@@ -49,7 +49,7 @@ const handler = async (event:any) => {
     if (!ticker || !start || !end || !timeFrame || !limit) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ error: 'Missing onre or more query parameters' }),
+            body: JSON.stringify({ error: 'Missing one or more query parameters...' }),
         };
     }
 
