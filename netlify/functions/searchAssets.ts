@@ -75,16 +75,15 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
 
     const apiKey = process.env.ALPACA_API_KEY?.trim();
     const apiSecret = process.env.ALPACA_API_SECRET?.trim();
+    const url = process.env.ALPACA_BASE_URL;
 
     const aggregatedResult:any = [];
 
     const { result } = searchResult;
     const tickers:string[] = [];
     result.map((item:any)=> {
-        tickers.push(item.symbol); 
-    });
-
-    const url = process.env.ALPACA_BASE_URL;
+        tickers.push(item.symbol);
+    });    
 
 
     try{        
@@ -101,6 +100,7 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
 
         Object.entries(snapResult?.data).forEach(([ticker, details]:any) => {
 
+            const foundItem = result.find((item: any) => item.symbol === ticker);
             const daily = details?.dailyBar;
             const prev = details?.prevDailyBar;
             const priceChange = daily?.c - prev?.c;
@@ -125,7 +125,8 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
                 intradayStrength:intradayStrength, 
                 gap:gap,
                 dailyRange:dailyRange,
-                intradayIntensity:intradayIntensity 
+                intradayIntensity:intradayIntensity,
+                type:foundItem?.type 
             });
 
         });
