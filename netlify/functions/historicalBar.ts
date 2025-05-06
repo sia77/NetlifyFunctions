@@ -52,14 +52,18 @@ const getHistoricalBarData = async (data:HistoricalBarSpec):Promise<any> => {
 
 const handler = async (event:any) => {
 
-    const { ticker, start, end, timeFrame, limit } = event.queryStringParameters;
-
-    console.log({ ticker, start, end, timeFrame, limit });
+    const { ticker, start, end, timeFrame, limit } = event.queryStringParameters;    
 
     if (!ticker || !start || !end || !timeFrame || !limit) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ error: 'Missing one or more query parameters...' }),
+            headers:{
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET', 
+                'Access-Control-Allow-Headers': 'Content-Type',
+            },
+            body: JSON.stringify({ message: 'Missing one or more query parameters...' }),
         };
     }
 
