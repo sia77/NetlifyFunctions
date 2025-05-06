@@ -24,7 +24,6 @@ const getHistoricalBarData = async (data:HistoricalBarSpec):Promise<any> => {
                     adjustment:'split',
                     feed:'sip',
                     sort:'asc'
-
                 }
             }
         )
@@ -34,17 +33,28 @@ const getHistoricalBarData = async (data:HistoricalBarSpec):Promise<any> => {
     }catch(err:any){
         if (axios.isAxiosError(err)) {
             console.error("Axios error fetching Historical bar data:", err.response || err.message);
+
+            throw{
+                statusCode: err.response?.status || 500,
+                message: err?.response?.data?.message || err.message || "Axios request failed",
+                source: "Finnhub"
+            };
+
         } else {
             console.error("getHistoricalBarData - Error fetching Historical bar data:", err);
+            throw{
+                statusCode: 500,
+                message: err?.message || "Unknown error occurred",
+            };
         }
-        throw new Error();
-
     }
 }
 
 const handler = async (event:any) => {
 
     const { ticker, start, end, timeFrame, limit } = event.queryStringParameters;
+
+    console.log({ ticker, start, end, timeFrame, limit });
 
     if (!ticker || !start || !end || !timeFrame || !limit) {
         return {
@@ -67,23 +77,18 @@ const handler = async (event:any) => {
             body: JSON.stringify(result)
         }
     }catch(err:any){
+
         return {
-            statusCode:500,
+            statusCode:err.statusCode || 500,
             headers:{
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET', 
                 'Access-Control-Allow-Headers': 'Content-Type',
             },
-            body: JSON.stringify(err?.message)
+            body: JSON.stringify({ message: err.message || "Unexpected error occurred" })
         };
-
     }
-
-
-
-    
-
 }
 
 export {handler}
