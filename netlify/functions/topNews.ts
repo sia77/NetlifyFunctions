@@ -43,19 +43,16 @@ const handler = async () =>{
     catch(err:any){
 
         return {
-            statusCode: 500,
+            statusCode:err.statusCode || 500,
             headers:{
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET', 
                 'Access-Control-Allow-Headers': 'Content-Type',
             },
-            body: JSON.stringify(err?.message)
+            body: JSON.stringify({ message: err.message || "Unexpected error occurred" })
         };
-
     }
-
-
 }
 
 export {handler}
