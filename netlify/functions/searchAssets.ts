@@ -106,26 +106,26 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
             const priceChange = daily?.c - prev?.c;
             const percentChange = ((priceChange / prev?.c) * 100).toFixed(2);
 
-            const dailyRange = daily?.h - daily?.l;
-            const gap = daily?.o - prev?.c;
-            const intradayStrength = dailyRange !== 0 ? (daily?.c - daily?.o) / dailyRange : 0;
+            //const dailyRange = daily?.h - daily?.l;
+            //const gap = daily?.o - prev?.c;
+            //const intradayStrength = dailyRange !== 0 ? (daily?.c - daily?.o) / dailyRange : 0;
             const tickerData = result.find((item:any) => item?.symbol === ticker);
-            const intradayIntensity = ((2 * daily?.c - dailyRange) / (dailyRange)) * daily?.v;
+            //const intradayIntensity = ((2 * daily?.c - dailyRange) / (dailyRange)) * daily?.v;
 
             aggregatedResult.push({
                 id: uuidv4(),
                 symbol: ticker, 
                 name:tickerData['name'], 
-                open:daily?.o, 
+                //open:daily?.o, 
                 close:daily?.c, 
-                high:daily?.h, 
-                low:daily?.l, 
+                //high:daily?.h, 
+                //low:daily?.l, 
                 change: percentChange, 
                 volume:daily?.v,
-                intradayStrength:intradayStrength, 
-                gap:gap,
-                dailyRange:dailyRange,
-                intradayIntensity:intradayIntensity,
+                //intradayStrength:intradayStrength, 
+                //gap:gap,
+                //dailyRange:dailyRange,
+                //intradayIntensity:intradayIntensity,
                 type:foundItem?.type 
             });
 
