@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const getListOfAssetSymbols = async (): Promise<string[]> => {
   try {
-    const res = await axios.get('https://finnhub.io/api/v1/stock/symbol', {
+    const res = await axios.get(`${process.env.FINNHUB_BASE_URL}stock/symbol`, {
       headers: {
         'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
       },
@@ -16,13 +16,22 @@ const getListOfAssetSymbols = async (): Promise<string[]> => {
     return res.data
       .filter((item: any) => item.symbol)
       .map((item: any) => item.symbol);
-    } catch (err) {
+    } catch (err:any) {
       if (axios.isAxiosError(err)) {
           console.error("Axios error fetching asset symbols:", err.response || err.message);
+
+          throw {
+            statusCode: err.response?.status || 500,
+            message: err?.response?.data?.message || err.message || "Axios request failed",
+            source: "Finnhub"
+          }
       } else {
           console.error("Error fetching asset symbols:", err);
+          throw{
+            statusCode: 500,
+            message: err?.message || "Unknown error occurred",
+        };
       }
-      throw new Error();
   }
 };
 
@@ -35,7 +44,7 @@ const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
   }
 
   try {
-    const res = await axios.get('https://data.alpaca.markets/v2/stocks/snapshots', {
+    const res = await axios.get(`${process.env.ALPACA_BASE_URL}stocks/snapshots`, {
       headers: {
         'apca-api-key-id': apiKey,
         'apca-api-secret-key': apiSecret,
@@ -67,11 +76,21 @@ const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
       losers: losers.sort((a, b) => a.delta - b.delta),
       mostActive: mostActive.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)),
     };
-  } catch (err) {
+  } catch (err:any) {
       if (axios.isAxiosError(err)) {
-          console.error("Axios error fetching asset snapshots:", err.response || err.message);
+        console.error("Axios error fetching Snapshot data:", err.response || err.message);
+
+        throw{
+            statusCode: err.response?.status || 500,
+            message: err?.response?.data?.message || err.message || "Axios request failed",
+            source: "Alpaca"
+        };
       } else {
           console.error("Error fetching asset snapshots:", err);
+          throw{
+            statusCode: 500,
+            message: err?.message || "Unknown error occurred",
+        };
       }
       throw new Error("Failed to fetch asset snapshots");
   }
@@ -85,9 +104,9 @@ const handler: Handler = async (event, context) => {
 
     const result = await getAssetsSnapshot(combinedTickers);
 
-    const allowedOrigins = ['http://localhost:4200', 'https://stocktracker-angular.netlify.app'];
-    const origin = event.headers.origin ?? '' ;
-    const isAllowedOrigin = allowedOrigins.includes(origin || '');
+    //const allowedOrigins = ['http://localhost:4200', 'https://stocktracker-angular.netlify.app'];
+    //const origin = event.headers.origin ?? '' ;
+    //const isAllowedOrigin = allowedOrigins.includes(origin || '');
 
     return {
       statusCode: 200,
@@ -101,14 +120,14 @@ const handler: Handler = async (event, context) => {
     };
   } catch (err: any) {
     return {
-      statusCode: 500,
+      statusCode:err.statusCode || 500,
       headers:{        
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', 
         'Access-Control-Allow-Methods': 'GET', 
         'Access-Control-Allow-Headers': 'Content-Type',
       },
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ message: err.message || "Unexpected error occurred" })
     };
   }
 };
