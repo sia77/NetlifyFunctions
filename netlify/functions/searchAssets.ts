@@ -56,7 +56,15 @@ const getMarketCapitalization = async (details:any[]):Promise<any[]> => {
                     }
                 }
             );
-            results.push({...item, marketCap:result?.data?.marketCapitalization});
+            results.push(
+                {   ...item, 
+                    marketCap:result?.data?.marketCapitalization,
+                    shareOutstanding:result?.data?.shareOutstanding,
+                    currency:result?.data?.currency,
+                    ipo:result?.data?.ipo,
+                    exchange:result?.data?.exchange,
+                    weburl:result?.data?.weburl,
+                    logo:result?.data?.logo});
         }
 
         return results;
@@ -106,7 +114,7 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
             const priceChange = daily?.c - prev?.c;
             const percentChange = ((priceChange / prev?.c) * 100).toFixed(2);
 
-            const dailyRange = daily?.h - daily?.l;
+            //const dailyRange = daily?.h - daily?.l;
             //const gap = daily?.o - prev?.c;
             //const intradayStrength = dailyRange !== 0 ? (daily?.c - daily?.o) / dailyRange : 0;
             const tickerData = result.find((item:any) => item?.symbol === ticker);
@@ -125,7 +133,7 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
                 volume:daily?.v,
                 //intradayStrength:intradayStrength, 
                 //gap:gap,
-                dailyRange:dailyRange,
+                //dailyRange:dailyRange,
                 //intradayIntensity:intradayIntensity,
                 type:foundItem?.type 
             });
