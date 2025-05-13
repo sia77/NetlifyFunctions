@@ -65,7 +65,7 @@ const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
 
       if (prevClose && todayClose) {
         const delta = ((todayClose - prevClose) / prevClose) * 100;
-        const entry = { ticker, delta: +delta.toFixed(2), volume:data.v };
+        const entry = { ticker, delta: +delta.toFixed(2), volume:+data.v };
         delta > 0 ? gainers.push(entry) : losers.push(entry);
         mostActive.push(entry);
       }
