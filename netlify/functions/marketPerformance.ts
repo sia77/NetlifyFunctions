@@ -65,7 +65,7 @@ const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
 
       if (prevClose && todayClose) {
         const delta = ((todayClose - prevClose) / prevClose) * 100;
-        const entry = { ticker, delta: +delta.toFixed(2) };
+        const entry = { ticker, delta: +delta.toFixed(2), volume:data.v };
         delta > 0 ? gainers.push(entry) : losers.push(entry);
         mostActive.push(entry);
       }
@@ -74,7 +74,7 @@ const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
     return {
       gainers: gainers.sort((a, b) => b.delta - a.delta),
       losers: losers.sort((a, b) => a.delta - b.delta),
-      mostActive: mostActive.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)),
+      mostActive: mostActive.sort((a, b) => Math.abs(b.volume) - Math.abs(a.volume)),
     };
   } catch (err:any) {
       if (axios.isAxiosError(err)) {
@@ -92,7 +92,6 @@ const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
             message: err?.message || "Unknown error occurred",
         };
       }
-      throw new Error("Failed to fetch asset snapshots");
   }
 };
 
