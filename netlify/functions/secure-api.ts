@@ -7,6 +7,7 @@ const handler: Handler = async (event:APIGatewayEvent) => {
   const authHeader = event.headers.authorization;
   if (!authHeader) return { 
     statusCode: 401, 
+    headers:getHeaders,
     body: JSON.stringify({ message:"Unauthorized" }) 
   };
 
