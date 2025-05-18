@@ -1,5 +1,6 @@
 
 import axios from 'axios';
+import { getHeaders } from '../types/constants';
 
 const getTopNews = async ():Promise<any[]> => {
 
@@ -31,12 +32,7 @@ const handler = async () =>{
 
         return {
             statusCode: 200,
-            headers:{
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET', 
-                'Access-Control-Allow-Headers': 'Content-Type',
-            },
+            headers:getHeaders,
             body: JSON.stringify(result)
         }
     }
@@ -44,12 +40,7 @@ const handler = async () =>{
 
         return {
             statusCode:err.statusCode || 500,
-            headers:{
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET', 
-                'Access-Control-Allow-Headers': 'Content-Type',
-            },
+            headers:getHeaders,
             body: JSON.stringify({ message: err.message || "Unexpected error occurred" })
         };
     }
