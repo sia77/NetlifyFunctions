@@ -34,41 +34,43 @@ const handler: Handler = async (event:APIGatewayEvent) => {
 
   const token = authHeader.split(" ")[1];
 
-
-return new Promise((resolve) => {
-  jwt.verify(token, getKey, {
-    audience: `${process.env.AUTH0_AUDIENCE}`,
-    issuer: `${process.env.AUTH0_DOMAIN}`,    
-    algorithms: ['RS256'],
-  }, (err, decoded) => {
-    if (err) {
-      return resolve({
-        statusCode: 403,
-        headers: getHeaders,
-        body: JSON.stringify({ message: 'Invalid token', error: err.message }),
-      });
-    }
+  console.log("token: ", token);
 
 
-    if (typeof decoded === 'object' && decoded !== null && 'scope' in decoded) {
-      const scopes = (decoded as JwtPayload).scope as string;
-  
-      if (!scopes.includes('read:data')) {
+  return new Promise((resolve) => {
+    jwt.verify(token, getKey, {
+      audience: `${process.env.AUTH0_AUDIENCE}`,
+      issuer: `${process.env.AUTH0_DOMAIN}`,    
+      algorithms: ['RS256'],
+    }, (err, decoded) => {
+      if (err) {
         return resolve({
           statusCode: 403,
           headers: getHeaders,
-          body: JSON.stringify({ message: 'Insufficient scope' }),
+          body: JSON.stringify({ message: 'Invalid token', error: err.message }),
         });
       }
-    }
 
-    return resolve({
-      statusCode: 200,
-      headers: getHeaders,
-      body: JSON.stringify({ user: decoded }),
+
+      if (typeof decoded === 'object' && decoded !== null && 'scope' in decoded) {
+        const scopes = (decoded as JwtPayload).scope as string;
+    
+        if (!scopes.includes('read:data')) {
+          return resolve({
+            statusCode: 403,
+            headers: getHeaders,
+            body: JSON.stringify({ message: 'Insufficient scope' }),
+          });
+        }
+      }
+
+      return resolve({
+        statusCode: 200,
+        headers: getHeaders,
+        body: JSON.stringify({ user: decoded }),
+      });
     });
   });
-});
 
 };
 
