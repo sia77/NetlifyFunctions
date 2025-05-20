@@ -40,7 +40,7 @@ const handler: Handler = async (event:APIGatewayEvent) => {
   return new Promise((resolve) => {
     jwt.verify(token, getKey, {
       audience: `${process.env.AUTH0_AUDIENCE}`,
-      issuer: `${process.env.AUTH0_DOMAIN}`,    
+      issuer: `https://${process.env.AUTH0_DOMAIN}/`,    
       algorithms: ['RS256'],
     }, (err, decoded) => {
       if (err) {
