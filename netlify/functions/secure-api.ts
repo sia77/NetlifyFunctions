@@ -1,22 +1,12 @@
 import { APIGatewayEvent, Handler } from 'aws-lambda';
 import { getHeaders } from '../types/constants';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import jwksClient from 'jwks-rsa';
-import axios from 'axios';
+import { handleFirstLogin } from '../lib/handleFirstLogin'
 
-const client = jwksClient({
-  jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
-});
 
-function getKey(header: any, callback: any) {
-  client.getSigningKey(header.kid, function (err, key) {
-    const signingKey = key?.getPublicKey();
-    callback(null, signingKey);
-  });
-}
 
-const handler: Handler = async (event:APIGatewayEvent) => {
+import { authenticateAndAuthorize } from '../utils/authenticateAndAuthorize';
 
+export const handler: Handler = async (event: APIGatewayEvent) => {
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
@@ -25,75 +15,40 @@ const handler: Handler = async (event:APIGatewayEvent) => {
     };
   }
 
-  const authHeader = event.headers.authorization;
+  try {
 
-  if (!authHeader) return { 
-    statusCode: 401, 
-    headers:getHeaders,
-    body: JSON.stringify({ message:"Unauthorized" }) 
-  };
+    const authHeader = event.headers.authorization;
 
-  const token = authHeader.split(" ")[1];
+    if (!authHeader) {
+      return {
+        statusCode: 401,
+        headers: getHeaders,
+        body: JSON.stringify({ message: "Missing Authorization header" }),
+      };
+    }
 
-  return new Promise((resolve) => {
-    jwt.verify(token, getKey, {
-      audience: `${process.env.AUTH0_AUDIENCE}`,
-      issuer: `https://${process.env.AUTH0_DOMAIN}/`,    
-      algorithms: ['RS256'],
-    }, async (err, decoded) => {
-      if (err) {
-        return resolve({
-          statusCode: 403,
-          headers: getHeaders,
-          body: JSON.stringify({ message: 'Invalid token', error: err.message }),
-        });
-      }
+    const authResult = await authenticateAndAuthorize(authHeader);
 
-      if (typeof decoded === 'object' && decoded !== null && 'scope' in decoded) {
-        const scopes = (decoded as JwtPayload).scope as string;
-    
-        if (!scopes.includes('read:data')) {
-          return resolve({
-            statusCode: 403,
-            headers: getHeaders,
-            body: JSON.stringify({ message: 'Insufficient scope' }),
-          });
-        }
-      }
+    // Business logic here
+    const { auth0_sub, email, decoded, userInfo } = authResult;
+    const user = await handleFirstLogin({ auth0_sub, email });
 
-      try{
+    return {
+      statusCode: 200,
+      headers: getHeaders,
+      body: JSON.stringify({
+        message: 'User authenticated',
+        user,
+      }),
+    };
 
-        // Fetch user info from Auth0
-        const userInfo = await axios.get(`https://${process.env.AUTH0_DOMAIN}/userinfo`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const email = userInfo.data.email;
-
-        return resolve({
-          statusCode: 200,
-          headers: getHeaders,
-          body: JSON.stringify({
-            message: 'User authenticated',
-            email,
-            userInfo: userInfo.data,
-            decodedToken: decoded,
-          }),
-        });
-
-      }catch(userInfoError:any){
-        console.error('Error fetching user info:', userInfoError.message);
-        return resolve({
-          statusCode: 500,
-          headers: getHeaders,
-          body: JSON.stringify({ message: 'Failed to fetch user info' }),
-        });
-      }
-    });
-  });
-
+  } catch (err: any) {
+    return {
+      statusCode: err.statusCode || 500,
+      headers: getHeaders,
+      body: JSON.stringify({ message: err.message, error: err.error }),
+    };
+  }
 };
 
-export {handler};
+
