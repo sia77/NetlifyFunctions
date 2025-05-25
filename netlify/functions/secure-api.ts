@@ -1,16 +1,14 @@
 import { APIGatewayEvent, Handler } from 'aws-lambda';
-import { getHeaders } from '../types/constants';
-import { handleFirstLogin } from '../lib/handleFirstLogin'
-
-
-
+import { getHeaders, getHeadersOption, putHeaders } from '../types/constants';
+import { handleFirstLogin } from '../lib/handleFirstLogin';
+import { updateUser } from '../lib/updateUser';
 import { authenticateAndAuthorize } from '../utils/authenticateAndAuthorize';
 
 export const handler: Handler = async (event: APIGatewayEvent) => {
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: getHeaders,
+      headers: getHeadersOption,
       body: '',
     };
   }
@@ -28,19 +26,28 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
     }
 
     const authResult = await authenticateAndAuthorize(authHeader);
-
-    // Business logic here
     const { auth0_sub, email, decoded, userInfo } = authResult;
-    const user = await handleFirstLogin({ auth0_sub, email });
 
-    return {
-      statusCode: 200,
-      headers: getHeaders,
-      body: JSON.stringify({
-        message: 'User authenticated',
-        user,
-      }),
-    };
+    if (event.httpMethod === "GET") {
+      console.log("hello");
+      
+      return await handleFirstLogin({ auth0_sub, email });
+
+    }
+
+    if(event.httpMethod === "PUT"){
+
+      if (!event.body) {
+        return {
+          statusCode: 400,
+          headers: getHeaders,
+          body: JSON.stringify({ message: "Missing request body" }),
+        };
+      }
+
+      return await updateUser(JSON.parse(event.body), auth0_sub );
+
+    }
 
   } catch (err: any) {
     return {

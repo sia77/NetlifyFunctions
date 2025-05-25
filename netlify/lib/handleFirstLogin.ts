@@ -1,27 +1,59 @@
-import { UserInfo } from '../types/interfaces';
+import { getHeaders } from '../types/constants';
+import { InitialUserInfo, User } from '../types/interfaces';
 import { sql } from './db';
 
 
-export const handleFirstLogin = async ({ auth0_sub, email }: UserInfo) => {
+export const handleFirstLogin = async ({ auth0_sub, email }: InitialUserInfo) => {
   const existingUser = await sql`
     SELECT * FROM users WHERE auth0_sub = ${auth0_sub}
   `;
 
   if (existingUser.length === 0) {
-    await sql`
-      INSERT INTO users (auth0_sub, email)
-      VALUES (${auth0_sub}, ${email})
-    `;
 
-    console.log('New user created:', email);
+    try{
 
-    const result = await sql`
-      SELECT * FROM users WHERE auth0_sub = ${auth0_sub}
-    `;
+      await sql`
+        INSERT INTO users (auth0_sub, email)
+        VALUES (${auth0_sub}, ${email})
+      `;
 
-    return result;
+      const result = await sql`
+        SELECT * FROM users WHERE auth0_sub = ${auth0_sub}
+      `;
+
+      const { id, auth0_sub:dbAuth0Sub, ...user} = result[0];
+
+      return {
+        statusCode: 200,
+        headers: getHeaders,
+        body: JSON.stringify({
+          message: 'User authenticated',
+          user,
+        }),
+      };
+
+    }catch(error:any){
+      return {
+        statusCode: 404,
+        headers: getHeaders,
+        body: JSON.stringify({
+          message: error.message || 'User not found',
+        }),
+      };
+
+    }
+
   } else {
-    console.log('User already exists:', email);
-    return existingUser;
+
+    const { id, auth0_sub, ...user} = existingUser[0];
+    return {
+      statusCode: 200,
+      headers: getHeaders,
+      body: JSON.stringify({
+        message: 'User authenticated',
+        user,
+      }),
+    };
+   
   }
 };

@@ -35,7 +35,7 @@ export async function authenticateAndAuthorize(authHeader: string): Promise<Auth
       }
 
       const scopes = (decoded as any).scope as string;
-      if (!scopes.includes('read:data')) {
+      if (!scopes.includes('read:data') && !scopes.includes('update:data') ) {
         return reject({ statusCode: 403, message: 'Insufficient scope' });
       }
 
