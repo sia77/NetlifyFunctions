@@ -1,4 +1,4 @@
-import { putHeaders } from '../types/constants';
+import { corsHeaders } from '../types/constants';
 import { User } from '../types/interfaces';
 import { sql } from './db';
 
@@ -11,7 +11,7 @@ export const updateUser = async (user: User, auth0_sub: string) => {
     if (!userInDb) {
         return {
         statusCode: 404,
-        headers: putHeaders,
+        headers: corsHeaders,
         body: JSON.stringify({ message: 'User not found' }),
         };
     }
@@ -38,7 +38,7 @@ export const updateUser = async (user: User, auth0_sub: string) => {
       
       return {
         statusCode: 200,
-        headers: putHeaders,
+        headers: corsHeaders,
         body: JSON.stringify({ message: 'User updated successfully', user: updated[0] }),
       };
 
@@ -50,7 +50,7 @@ export const updateUser = async (user: User, auth0_sub: string) => {
         if (error.message.includes('does not exist')) {
           return {
             statusCode: 400,
-            headers: putHeaders,
+            headers: corsHeaders,
             body: JSON.stringify({ message: 'Invalid field provided in update request.' }),
           };
         }

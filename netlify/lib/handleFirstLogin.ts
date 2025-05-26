@@ -1,4 +1,4 @@
-import { getHeaders } from '../types/constants';
+import { corsHeaders } from '../types/constants';
 import { InitialUserInfo, User } from '../types/interfaces';
 import { sql } from './db';
 
@@ -25,7 +25,7 @@ export const handleFirstLogin = async ({ auth0_sub, email }: InitialUserInfo) =>
 
       return {
         statusCode: 200,
-        headers: getHeaders,
+        headers: corsHeaders,
         body: JSON.stringify({
           message: 'User authenticated',
           user,
@@ -35,7 +35,7 @@ export const handleFirstLogin = async ({ auth0_sub, email }: InitialUserInfo) =>
     }catch(error:any){
       return {
         statusCode: 404,
-        headers: getHeaders,
+        headers: corsHeaders,
         body: JSON.stringify({
           message: error.message || 'User not found',
         }),
@@ -48,7 +48,7 @@ export const handleFirstLogin = async ({ auth0_sub, email }: InitialUserInfo) =>
     const { id, auth0_sub, ...user} = existingUser[0];
     return {
       statusCode: 200,
-      headers: getHeaders,
+      headers: corsHeaders,
       body: JSON.stringify({
         message: 'User authenticated',
         user,

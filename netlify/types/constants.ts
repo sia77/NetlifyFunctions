@@ -1,4 +1,12 @@
 
+
+export const corsHeaders = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+  
 export const getHeaders ={
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
