@@ -26,16 +26,13 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
     }
 
     const authResult = await authenticateAndAuthorize(authHeader);
-    const { auth0_sub, email, decoded, userInfo } = authResult;
+    const { auth0_sub, email } = authResult;
 
     if (event.httpMethod === "GET") {
-      console.log("hello");
       
       return await handleFirstLogin({ auth0_sub, email });
 
-    }
-
-    if(event.httpMethod === "PUT"){
+    }else if(event.httpMethod === "PUT"){
 
       if (!event.body) {
         return {
