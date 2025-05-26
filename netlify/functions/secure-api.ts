@@ -1,5 +1,5 @@
 import { APIGatewayEvent, Handler } from 'aws-lambda';
-import { getHeaders, getHeadersOption, putHeaders } from '../types/constants';
+import { getHeaders, getHeadersOption, corsHeaders } from '../types/constants';
 import { handleFirstLogin } from '../lib/handleFirstLogin';
 import { updateUser } from '../lib/updateUser';
 import { authenticateAndAuthorize } from '../utils/authenticateAndAuthorize';
@@ -8,7 +8,7 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: getHeadersOption,
+      headers: corsHeaders,
       body: '',
     };
   }
