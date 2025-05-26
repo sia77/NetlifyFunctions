@@ -1,5 +1,5 @@
 import { corsHeaders } from '../types/constants';
-import { InitialUserInfo, User } from '../types/interfaces';
+import { InitialUserInfo } from '../types/interfaces';
 import { sql } from './db';
 
 

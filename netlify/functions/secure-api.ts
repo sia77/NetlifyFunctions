@@ -1,5 +1,5 @@
 import { APIGatewayEvent, Handler } from 'aws-lambda';
-import { corsHeaders } from '../types/constants';
+import { getHeaders, getHeadersOption, putHeaders } from '../types/constants';
 import { handleFirstLogin } from '../lib/handleFirstLogin';
 import { updateUser } from '../lib/updateUser';
 import { authenticateAndAuthorize } from '../utils/authenticateAndAuthorize';
@@ -8,7 +8,7 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: corsHeaders,
+      headers: getHeadersOption,
       body: '',
     };
   }
@@ -20,7 +20,7 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
     if (!authHeader) {
       return {
         statusCode: 401,
-        headers: corsHeaders,
+        headers: getHeaders,
         body: JSON.stringify({ message: "Missing Authorization header" }),
       };
     }
@@ -40,7 +40,7 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
       if (!event.body) {
         return {
           statusCode: 400,
-          headers: corsHeaders,
+          headers: getHeaders,
           body: JSON.stringify({ message: "Missing request body" }),
         };
       }
@@ -52,7 +52,7 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
   } catch (err: any) {
     return {
       statusCode: err.statusCode || 500,
-      headers: corsHeaders,
+      headers: getHeaders,
       body: JSON.stringify({ message: err.message, error: err.error }),
     };
   }
