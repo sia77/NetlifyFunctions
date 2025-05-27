@@ -32,7 +32,7 @@ export const updateUser = async (user: User, auth0_sub: string) => {
           postal_code = ${postal_code},
           unit = ${unit},
           city = ${city},
-          country= ${country},
+          country= ${country}
         WHERE auth0_sub = ${auth0_sub}
         RETURNING *;
       `;

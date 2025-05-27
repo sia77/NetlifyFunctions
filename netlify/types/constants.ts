@@ -21,7 +21,6 @@ export const getHeadersOption ={
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-
 export const postHeaders ={
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
