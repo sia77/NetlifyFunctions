@@ -16,7 +16,7 @@ export const updateUser = async (user: User, auth0_sub: string) => {
         };
     }
 
-    const { email, first_name, last_name, address, phone, state_province, postal_code, unit, city } = user;
+    const { email, first_name, last_name, address, phone, state_province, postal_code, unit, city, country } = user;
 
 
     try{
@@ -31,7 +31,8 @@ export const updateUser = async (user: User, auth0_sub: string) => {
           state_province = ${state_province},
           postal_code = ${postal_code},
           unit = ${unit},
-          city = ${city}
+          city = ${city},
+          country= ${country},
         WHERE auth0_sub = ${auth0_sub}
         RETURNING *;
       `;

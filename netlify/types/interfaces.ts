@@ -32,4 +32,5 @@ export interface AuthResult {
     created_at: string;
     city:string;
     unit:string;
+    country:string;
   }

@@ -1,5 +1,5 @@
 import { APIGatewayEvent, Handler } from 'aws-lambda';
-import { getHeaders, getHeadersOption, corsHeaders } from '../types/constants';
+import { getHeaders, corsHeaders } from '../types/constants';
 import { handleFirstLogin } from '../lib/handleFirstLogin';
 import { updateUser } from '../lib/updateUser';
 import { authenticateAndAuthorize } from '../utils/authenticateAndAuthorize';
