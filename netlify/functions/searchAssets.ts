@@ -8,7 +8,7 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
     const url = process.env.FINNHUB_BASE_URL;
 
     try{        
-        const result = await axios.get<any>(`${url}search`, 
+        const response = await axios.get<any>(`${url}search`, 
             {
                 headers: {
                     'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
@@ -20,7 +20,13 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
             }
         );
 
-        const filteredResult = result.data.result.filter((item:any) => {
+        const data = response.data;
+
+        if(!data || !data.result || data.result.length === 0){
+            return null;
+        }
+
+        const filteredResult = data.result.filter((item:any) => {
             return item.type && item.type.trim() !== '';
         });
 
@@ -28,7 +34,11 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
             summarizedResult.push({symbol:item?.symbol, name:item?.description, type:item?.type});
         });
 
-        return {count:result?.data?.count, result:summarizedResult};
+        if (summarizedResult.length === 0) {
+            return null; 
+        }
+
+        return {count:data?.count, result:summarizedResult};
 
     }catch(err:any){
         if (axios.isAxiosError(err)) {
