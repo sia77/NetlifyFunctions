@@ -1,5 +1,6 @@
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
+import { getHeaders } from "../types/constants";
 
 const searchAssetByQuery = async (query:any):Promise<any> => {
 
@@ -165,6 +166,14 @@ const handler = async (event:any) => {
 
     try{
         const searchResult = await searchAssetByQuery(query);
+
+        if (!searchResult) {
+            return {
+                statusCode: 200,
+                headers: getHeaders,
+                body: JSON.stringify([]) // or `null`
+            };
+        }
         
         const detailResult = await calculateIndicators(searchResult);
         const aggregatedResult = await getMarketCapitalization(detailResult); 
@@ -172,12 +181,7 @@ const handler = async (event:any) => {
 
         return {
             statusCode:200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET', 
-                'Access-Control-Allow-Headers': 'Content-Type',
-            },
+            headers: getHeaders,
             body: JSON.stringify(aggregatedResult)
         }
 
