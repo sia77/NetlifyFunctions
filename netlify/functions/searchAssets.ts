@@ -192,7 +192,7 @@ const handler = async (event:any) => {
         return {
             statusCode:200,
             headers: getHeaders,
-            body: JSON.stringify(aggregatedResult)
+            body: {result:JSON.stringify(aggregatedResult)}
         }
 
     }catch(err:any){
