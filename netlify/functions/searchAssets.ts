@@ -205,7 +205,7 @@ const handler = async (event:any) => {
                 'Access-Control-Allow-Methods': 'GET', 
                 'Access-Control-Allow-Headers': 'Content-Type',
             },
-            body: JSON.stringify(err?.message)
+            body: {error: JSON.stringify(err?.message)}
         };
     }
 }
