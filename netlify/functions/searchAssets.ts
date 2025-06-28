@@ -181,7 +181,7 @@ const handler = async (event:any) => {
             return {
                 statusCode: 200,
                 headers: getHeaders,
-                body: JSON.stringify([]) // or `null`
+                body: JSON.stringify({result:[]}) // or `null`
             };
         }
         
@@ -192,7 +192,7 @@ const handler = async (event:any) => {
         return {
             statusCode:200,
             headers: getHeaders,
-            body: {result:JSON.stringify(aggregatedResult)}
+            body: JSON.stringify({result:aggregatedResult})
         }
 
     }catch(err:any){
@@ -205,7 +205,7 @@ const handler = async (event:any) => {
                 'Access-Control-Allow-Methods': 'GET', 
                 'Access-Control-Allow-Headers': 'Content-Type',
             },
-            body: {error: JSON.stringify(err?.message)}
+            body: JSON.stringify({error: err?.message})
         };
     }
 }
