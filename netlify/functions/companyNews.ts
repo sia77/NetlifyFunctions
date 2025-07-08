@@ -1,12 +1,13 @@
 import axios from "axios"
 import { getHeaders } from "../types/constants";
 
+const isValidDate = (str:string) => /^\d{4}-\d{2}-\d{2}$/.test(str);
 
 const getCompanyNews = async (symbol:string,from:string, to:string):Promise<any>=> {
 
     try{
 
-        const res = axios.get(`${process.env.FINNHUB_BASE_URL}company-news`,{
+        const res = await axios.get(`${process.env.FINNHUB_BASE_URL}company-news`,{
             headers: {
                 'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
             },
@@ -16,7 +17,7 @@ const getCompanyNews = async (symbol:string,from:string, to:string):Promise<any>
                 to:to
             },
         });
-        return res;
+        return res.data;
 
     }catch( err:any){
         if (axios.isAxiosError(err)) {
@@ -40,9 +41,18 @@ const handler = async (event:any) => {
 
     const params = event.queryStringParameters;
 
-    const symbol = params?.symbol || '';
-    const from = params?.from || '2025-07-07';
-    const to = params?.to || '2025-07-07';
+    const symbol = params?.symbol;
+    const from = params?.from;
+    const to = params?.to;
+
+    if(!symbol || !isValidDate(from) || !isValidDate(to)){
+
+        return {
+            statusCode:400,
+            headers:getHeaders,
+            body: JSON.stringify({ message: "Invalid or missing parameters: symbol, from, and to are required in YYYY-MM-DD format." })
+        }
+    }
 
     try{
 
