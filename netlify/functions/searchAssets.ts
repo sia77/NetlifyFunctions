@@ -121,7 +121,7 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
     const apiSecret = process.env.ALPACA_API_SECRET?.trim();
     const url = process.env.ALPACA_BASE_URL;
 
-    const aggregatedResult:any = [];
+    //const aggregatedResult:any = [];
 
     const { result } = searchResult;
     const tickers:string[] = [];
@@ -148,6 +148,10 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
             const prev = details?.prevDailyBar;
             const priceChange = daily?.c - prev?.c;
             const percentChange = ((priceChange / prev?.c) * 100).toFixed(2);
+            //const dailyRange = daily?.h - daily?.l;
+            //const gap = daily?.o - prev?.c;
+            //const intradayStrength = dailyRange !== 0 ? (daily?.c - daily?.o) / dailyRange : 0;
+            //const intradayIntensity = ((2 * daily?.c - dailyRange) / (dailyRange)) * daily?.v;
 
             return {
                 id: uuidv4(),
@@ -160,43 +164,15 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
                 low: daily?.l,
                 change: percentChange,
                 volume: daily?.v,
-                type: item.type
+                type: item.type,
+                //intradayStrength:intradayStrength, 
+                //gap:gap,
+                //dailyRange:dailyRange,
+                //intradayIntensity:intradayIntensity,
             };
         });
 
-        // Object.entries(snapResult?.data).forEach(([ticker, details]:any) => {
 
-        //     const foundItem = result.find((item: any) => item.symbol === ticker);
-        //     const daily = details?.dailyBar;
-        //     const prev = details?.prevDailyBar;
-        //     const priceChange = daily?.c - prev?.c;
-        //     const percentChange = ((priceChange / prev?.c) * 100).toFixed(2);
-
-        //     //const dailyRange = daily?.h - daily?.l;
-        //     //const gap = daily?.o - prev?.c;
-        //     //const intradayStrength = dailyRange !== 0 ? (daily?.c - daily?.o) / dailyRange : 0;
-        //     const tickerData = result.find((item:any) => item?.symbol === ticker);
-        //     //const intradayIntensity = ((2 * daily?.c - dailyRange) / (dailyRange)) * daily?.v;
-
-        //     aggregatedResult.push({
-        //         id: uuidv4(),
-        //         symbol: ticker, 
-        //         name:tickerData['name'], 
-        //         open:daily?.o, 
-        //         close:daily?.c,
-        //         prevC:prev?.c, 
-        //         high:daily?.h, 
-        //         low:daily?.l, 
-        //         change: percentChange, 
-        //         volume:daily?.v,
-        //         //intradayStrength:intradayStrength, 
-        //         //gap:gap,
-        //         //dailyRange:dailyRange,
-        //         //intradayIntensity:intradayIntensity,
-        //         type:foundItem?.type 
-        //     });
-
-        // });
 
         return aggregatedResult;
 
@@ -242,10 +218,10 @@ const handler = async (event:any) => {
             headers: getHeaders,
             body: JSON.stringify({
             result: aggregatedResult,
-            debug: {
-                sortedSymbols: searchResult?.result?.map((r: any) => r.symbol),
-                query: query
-            }
+            // debug: {
+            //     sortedSymbols: searchResult?.result?.map((r: any) => r.symbol),
+            //     query: query
+            // }
         })
         }
 
