@@ -46,6 +46,12 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
         filteredResult.sort((a:any, b:any) => {
             const aScore:number = getMatchScore(query, a.symbol, a.description);
             const bScore:number = getMatchScore(query, b.symbol, b.description);
+
+            if (aScore === bScore) {
+                // Break ties consistently by symbol
+                return a.symbol.localeCompare(b.symbol);
+            }
+
             return bScore - aScore; // descending
         });
 
