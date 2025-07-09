@@ -2,13 +2,28 @@ import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
 import { getHeaders } from "../types/constants";
 
+const getMatchScore = (query:string, symbol:string, description:string):number => {
+
+    const q = query.toLowerCase();
+    const s = symbol.toLowerCase();
+    const d = description.toLowerCase();
+
+    if ( s === q ) return 100;
+    if ( s.startsWith(q) ) return 90;
+    if ( s.includes(q)) return 80;
+    if ( d.startsWith(q)) return 70;       // name starts with query
+    if ( d.includes(q)) return 60;
+
+    return 0;
+}
+
 const searchAssetByQuery = async (query:any):Promise<any> => {
 
     const summarizedResult:any = [];
     const url = process.env.FINNHUB_BASE_URL;
 
     try{        
-        const response = await axios.get<any>(`${url}search`, 
+        const {data} = await axios.get<any>(`${url}search`, 
             {
                 headers: {
                     'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
@@ -20,14 +35,18 @@ const searchAssetByQuery = async (query:any):Promise<any> => {
             }
         );
 
-        const data = response.data;
-
         if(!data || !data.result || data.result.length === 0){
             return null;
         }
 
         const filteredResult = data.result.filter((item:any) => {
             return item.type && item.type.trim() !== '';
+        });
+
+        filteredResult.sort((a:any, b:any) => {
+            const aScore:number = getMatchScore(query, a.symbol, a.description);
+            const bScore:number = getMatchScore(query, b.symbol, b.description);
+            return bScore - aScore; // descending
         });
 
         filteredResult.map((item:any) => {

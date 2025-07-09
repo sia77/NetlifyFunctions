@@ -7,7 +7,7 @@ const getCompanyNews = async (symbol:string,from:string, to:string):Promise<any>
 
     try{
 
-        const res = await axios.get(`${process.env.FINNHUB_BASE_URL}company-news`,{
+        const {data} = await axios.get(`${process.env.FINNHUB_BASE_URL}company-news`,{
             headers: {
                 'X-Finnhub-Token': process.env.FINNHUB_API_KEY?.trim(),
             },
@@ -17,7 +17,7 @@ const getCompanyNews = async (symbol:string,from:string, to:string):Promise<any>
                 to:to
             },
         });
-        return res.data;
+        return data;
 
     }catch( err:any){
         if (axios.isAxiosError(err)) {
@@ -50,7 +50,7 @@ const handler = async (event:any) => {
         return {
             statusCode:400,
             headers:getHeaders,
-            body: JSON.stringify({ message: "Invalid or missing parameters: symbol, from, and to are required in YYYY-MM-DD format." })
+            body: JSON.stringify({ message: "Invalid or missing parameters: symbol, from, and to. 'from', and 'to' are required in YYYY-MM-DD format." })
         }
     }
 
