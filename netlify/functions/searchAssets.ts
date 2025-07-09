@@ -207,6 +207,7 @@ const handler = async (event:any) => {
                 statusCode: 200,
                 headers: getHeaders,
                 body: JSON.stringify({result:[]}) // or `null`
+                
             };
         }
         
@@ -217,7 +218,13 @@ const handler = async (event:any) => {
         return {
             statusCode:200,
             headers: getHeaders,
-            body: JSON.stringify({result:aggregatedResult})
+            body: JSON.stringify({
+            result: aggregatedResult,
+            debug: {
+                sortedSymbols: searchResult?.result?.map((r: any) => r.symbol),
+                query: query
+            }
+        })
         }
 
     }catch(err:any){
