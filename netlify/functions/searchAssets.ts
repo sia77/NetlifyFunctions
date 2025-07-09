@@ -142,39 +142,61 @@ const calculateIndicators = async (searchResult:any):Promise<any> => {
             }
         });
 
-        Object.entries(snapResult?.data).forEach(([ticker, details]:any) => {
-
-            const foundItem = result.find((item: any) => item.symbol === ticker);
+        const aggregatedResult = result.map((item: any) => {
+            const details = snapResult?.data?.[item.symbol];
             const daily = details?.dailyBar;
             const prev = details?.prevDailyBar;
             const priceChange = daily?.c - prev?.c;
             const percentChange = ((priceChange / prev?.c) * 100).toFixed(2);
 
-            //const dailyRange = daily?.h - daily?.l;
-            //const gap = daily?.o - prev?.c;
-            //const intradayStrength = dailyRange !== 0 ? (daily?.c - daily?.o) / dailyRange : 0;
-            const tickerData = result.find((item:any) => item?.symbol === ticker);
-            //const intradayIntensity = ((2 * daily?.c - dailyRange) / (dailyRange)) * daily?.v;
-
-            aggregatedResult.push({
+            return {
                 id: uuidv4(),
-                symbol: ticker, 
-                name:tickerData['name'], 
-                open:daily?.o, 
-                close:daily?.c,
-                prevC:prev?.c, 
-                high:daily?.h, 
-                low:daily?.l, 
-                change: percentChange, 
-                volume:daily?.v,
-                //intradayStrength:intradayStrength, 
-                //gap:gap,
-                //dailyRange:dailyRange,
-                //intradayIntensity:intradayIntensity,
-                type:foundItem?.type 
-            });
-
+                symbol: item.symbol,
+                name: item.name,
+                open: daily?.o,
+                close: daily?.c,
+                prevC: prev?.c,
+                high: daily?.h,
+                low: daily?.l,
+                change: percentChange,
+                volume: daily?.v,
+                type: item.type
+            };
         });
+
+        // Object.entries(snapResult?.data).forEach(([ticker, details]:any) => {
+
+        //     const foundItem = result.find((item: any) => item.symbol === ticker);
+        //     const daily = details?.dailyBar;
+        //     const prev = details?.prevDailyBar;
+        //     const priceChange = daily?.c - prev?.c;
+        //     const percentChange = ((priceChange / prev?.c) * 100).toFixed(2);
+
+        //     //const dailyRange = daily?.h - daily?.l;
+        //     //const gap = daily?.o - prev?.c;
+        //     //const intradayStrength = dailyRange !== 0 ? (daily?.c - daily?.o) / dailyRange : 0;
+        //     const tickerData = result.find((item:any) => item?.symbol === ticker);
+        //     //const intradayIntensity = ((2 * daily?.c - dailyRange) / (dailyRange)) * daily?.v;
+
+        //     aggregatedResult.push({
+        //         id: uuidv4(),
+        //         symbol: ticker, 
+        //         name:tickerData['name'], 
+        //         open:daily?.o, 
+        //         close:daily?.c,
+        //         prevC:prev?.c, 
+        //         high:daily?.h, 
+        //         low:daily?.l, 
+        //         change: percentChange, 
+        //         volume:daily?.v,
+        //         //intradayStrength:intradayStrength, 
+        //         //gap:gap,
+        //         //dailyRange:dailyRange,
+        //         //intradayIntensity:intradayIntensity,
+        //         type:foundItem?.type 
+        //     });
+
+        // });
 
         return aggregatedResult;
 
