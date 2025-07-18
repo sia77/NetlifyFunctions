@@ -3,9 +3,6 @@ import jwksClient from 'jwks-rsa';
 import axios from 'axios';
 import { AuthResult } from '../types/interfaces';
 
-
-
-
 const client = jwksClient({
   jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
 });
