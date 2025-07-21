@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { getHeaders } from '../types/constants';
+import { getHeaders } from '../constants/headers';
 
 const getTopNews = async ():Promise<any[]> => {
 

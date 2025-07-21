@@ -1,4 +1,4 @@
-import { corsHeaders } from '../types/constants';
+import { corsHeaders } from '../constants/headers';
 import { sql } from './db';
 
 export const addToWatchlist = async (auth0_sub: string, symbol:string) => {
@@ -53,7 +53,5 @@ export const addToWatchlist = async (auth0_sub: string, symbol:string) => {
         };
 
     }
-
-
     
 }

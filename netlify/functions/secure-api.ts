@@ -1,7 +1,8 @@
 import { APIGatewayEvent, Handler } from 'aws-lambda';
-import { getHeaders, corsHeaders } from '../types/constants';
+import { getHeaders, corsHeaders } from '../constants/headers';
 import { handleFirstLogin } from '../lib/handleFirstLogin';
 import { updateUser } from '../lib/updateUser';
+import { addToWatchlist } from '../lib/addToWatchlist';
 import { authenticateAndAuthorize } from '../utils/authenticateAndAuthorize';
 
 export const handler: Handler = async (event: APIGatewayEvent) => {
@@ -15,15 +16,15 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
 
   try {
 
-    const authHeader = event.headers.authorization;
+    const authHeader: string = event.headers?.authorization ?? '';
 
-    if (!authHeader) {
-      return {
-        statusCode: 401,
-        headers: getHeaders,
-        body: JSON.stringify({ message: "Missing Authorization header" }),
-      };
-    }
+    // if (!authHeader) {
+    //   return {
+    //     statusCode: 401,
+    //     headers: getHeaders,
+    //     body: JSON.stringify({ message: "Missing Authorization header" }),
+    //   };
+    // }
 
     const authResult = await authenticateAndAuthorize(authHeader);
     const { auth0_sub, email } = authResult;
@@ -43,6 +44,17 @@ export const handler: Handler = async (event: APIGatewayEvent) => {
       }
 
       return await updateUser(JSON.parse(event.body), auth0_sub );
+
+    }else if(event.httpMethod === "POST"){
+      if (!event.body) {
+        return {
+          statusCode: 400,
+          headers: getHeaders,
+          body: JSON.stringify({ message: "Missing request body" }),
+        };
+      }
+
+      return await addToWatchlist(auth0_sub,JSON.parse(event.body) );
 
     }
 
