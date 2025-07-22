@@ -20,11 +20,11 @@ export const withAuth = async (
 
     const authResult = await authenticateAndAuthorize(authHeader);
     return await handler(authResult, event);
-  } catch (err) {
+  } catch (err:any) {
     return {
       statusCode: err.statusCode || 500,
       headers: getHeaders,
-      body: JSON.stringify({ message: err.message }),
+      body: JSON.stringify({ message: err.message || "Internal Server Error" }),
     };
   }
 };
