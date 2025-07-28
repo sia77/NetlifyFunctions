@@ -3,6 +3,7 @@ import jwksClient from 'jwks-rsa';
 import axios from 'axios';
 import { AuthResult } from '../types/interfaces';
 import { getHeaders } from '../constants/headers';
+import { HttpError } from '../utils/errors';
 
 const client = jwksClient({
   jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
@@ -18,41 +19,41 @@ function getKey(header: any, callback: any) {
 
 export async function authenticateAndAuthorize(authHeader: string): Promise<AuthResult> {
   if (!authHeader) {
-    throw { statusCode: 401, headers: getHeaders, message: 'Missing Authorization header' };
+    console.log(`Error: ${'Missing Authorization header - authHeader'}`);
+    throw new HttpError('Missing Authorization header', 401, 'authHeader' );
   }
 
   const token = authHeader.split(' ')[1];
 
+  const decoded = await jwtVerify(token);
+
+  if (typeof decoded !== 'object' || decoded === null || !('scope' in decoded)) {
+    console.log(`Error: ${'Invalid token payload - decoded'}`);
+    throw new HttpError('Invalid token payload', 403, 'decoded' );
+  }
+
+  const scopes = (decoded as any).scope as string;
+  if (!scopes.includes('read:data') && !scopes.includes('update:data')) {
+    console.log(`Error: ${'Insufficient - scope'}`);
+    throw new HttpError('Insufficient scope', 403, 'scopes' ); 
+  }
+
+  let userInfo;
   try {
-    const decoded = await jwtVerify(token); 
-
-    if (typeof decoded !== 'object' || decoded === null || !('scope' in decoded)) {
-      throw { statusCode: 403, message: 'Invalid token payload' };
-    }
-
-    const scopes = (decoded as any).scope as string;
-    if (!scopes.includes('read:data') && !scopes.includes('update:data')) {
-      throw { statusCode: 403, message: 'Insufficient scope' };
-    }
-
-    const userInfo = await axios.get(`https://${process.env.AUTH0_DOMAIN}/userinfo`, {
+    userInfo = await axios.get(`https://${process.env.AUTH0_DOMAIN}/userinfo`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
-    return {
-      auth0_sub: (decoded as any).sub,
-      email: userInfo.data.email,
-      decoded,
-      userInfo: userInfo.data,
-    };
   } catch (err: any) {
-    throw {
-      statusCode: err.statusCode || 403,
-      message: err.message || 'Authentication failed',
-      error: err.error || err.toString(),
-      headers: getHeaders,
-    };
+    console.log(`Error: Failed to fetch user info - ${err.message}`);
+    throw new HttpError('Failed to fetch user info', 401, 'axios.userinfo');
   }
+
+  return {
+    auth0_sub: (decoded as any).sub,
+    email: userInfo.data.email,
+    decoded,
+    userInfo: userInfo.data,
+  };
 }
 
 function jwtVerify(token: string): Promise<any> {

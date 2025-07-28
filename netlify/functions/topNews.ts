@@ -1,6 +1,7 @@
 
 import axios from 'axios';
 import { getHeaders } from '../constants/headers';
+import { HttpError } from '../utils/errors'
 
 const getTopNews = async ():Promise<any[]> => {
 
@@ -17,11 +18,20 @@ const getTopNews = async ():Promise<any[]> => {
 
     }catch(err:any){
         if (axios.isAxiosError(err)) {
-            console.error("Axios error fetching asset symbols:", err.response || err.message);
+            console.error("Axios error fetching topnews:", err.response || err.message);
+            throw new HttpError(
+                err?.response?.data?.message || err.message || "Axios topnews request failed",
+                err.response?.status || 500,
+                "Finnhub"
+            );
         } else {
-            console.error("Error fetching asset symbols:", err);
-        }
-        throw new Error();
+            console.error("Error fetching topnews:", err);
+            throw new HttpError(
+                err?.response?.data?.message || err.message || "topnews request failed",
+                err.response?.status || 500,
+                "Finnhub"
+            );
+        }       
     }
 };
 

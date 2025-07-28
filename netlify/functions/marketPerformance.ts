@@ -1,5 +1,6 @@
 import { Handler } from '@netlify/functions';
 import axios from 'axios';
+import { HttpError } from '../utils/errors';
 
 const getListOfAssetSymbols = async (): Promise<string[]> => {
   try {
@@ -18,19 +19,21 @@ const getListOfAssetSymbols = async (): Promise<string[]> => {
       .map((item: any) => item.symbol);
     } catch (err:any) {
       if (axios.isAxiosError(err)) {
-          console.error("Axios error fetching asset symbols:", err.response || err.message);
+        console.error("Axios error fetching asset symbols:", err.response || err.message);
 
-          throw {
-            statusCode: err.response?.status || 500,
-            message: err?.response?.data?.message || err.message || "Axios request failed",
-            source: "Finnhub"
-          }
+        throw new HttpError(
+          err?.response?.data?.message || err.message || "Axios request failed",
+          err.response?.status || 500,
+          "Finnhub"
+        );
+
       } else {
-          console.error("Error fetching asset symbols:", err);
-          throw{
-            statusCode: 500,
-            message: err?.message || "Unknown error occurred",
-        };
+        console.error("Error fetching asset symbols:", err);
+        throw new HttpError(
+          err?.response?.data?.message || err.message || "Request failed",
+          err.response?.status || 500,
+          "Finnhub"
+        );
       }
   }
 };
@@ -80,17 +83,19 @@ const getAssetsSnapshot = async (tickers: string[]): Promise<any> => {
       if (axios.isAxiosError(err)) {
         console.error("Axios error fetching Snapshot data:", err.response || err.message);
 
-        throw{
-            statusCode: err.response?.status || 500,
-            message: err?.response?.data?.message || err.message || "Axios request failed",
-            source: "Alpaca"
-        };
+        throw new HttpError(
+          err?.response?.data?.message || err.message || "Axios request failed",
+          err.response?.status || 500,
+          "Alpaca"
+        );
+
       } else {
-          console.error("Error fetching asset snapshots:", err);
-          throw{
-            statusCode: 500,
-            message: err?.message || "Unknown error occurred",
-        };
+        console.error("Error fetching asset snapshots:", err);
+        throw new HttpError(
+          err?.response?.data?.message || err.message || "Unknown error occurred",
+          err.response?.status || 500,
+          "Alpaca"
+        );
       }
   }
 };
